@@ -1,0 +1,49 @@
+{
+  "id": "A2",
+  "question": "What was the total revenue in Europe during Q3 2024?",
+  "answerable": true,
+  "answer": 218923.22,
+  "code_file": "answers/A2.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [
+    {
+      "aspect": "region label",
+      "interpretations": [
+        "Europe",
+        "EMEA"
+      ],
+      "assumption": "Mapping 'Europe' to the 'EMEA' region value in sales_transactions.csv"
+    },
+    {
+      "aspect": "fiscal vs calendar quarter",
+      "interpretations": [
+        "Calendar Q3 (Jul-Sep)",
+        "Fiscal Q3 (Oct-Dec)"
+      ],
+      "assumption": "Using calendar Q3 2024 (Jul-Sep) since October-December data falls outside the available 2024-01 to 2024-09 data span."
+    }
+  ],
+  "traps": [
+    "duplicate_rows",
+    "mixed_currencies",
+    "missing_fx_rates",
+    "mixed_date_formats",
+    "missing_values",
+    "negative_returns",
+    "ambiguous_region_labels",
+    "fiscal_vs_calendar_quarters",
+    "document_defines_business_rules"
+  ],
+  "evidence": {
+    "rows_raw": 5120,
+    "rows_deduped": 5000,
+    "duplicate_rows_removed": 120,
+    "rows_in_scope": 504,
+    "nulls_skipped": 7,
+    "rows_missing_fx_rate": 0,
+    "rows_used": 497
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

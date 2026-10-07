@@ -1,0 +1,36 @@
+{
+  "id": "M3",
+  "question": "What was the median order value in USD across all orders?",
+  "answerable": true,
+  "answer": 344.5,
+  "code_file": "answers/M3.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [
+    {
+      "aspect": "Currency conversion for median",
+      "interpretations": [
+        "Convert EUR and INR transactions to USD using fx_rates.csv before finding the median",
+        "Find median on original amounts (incorrect per business rules)"
+      ],
+      "assumption": "Convert all transactions to USD using fx_rates.csv daily rates as specified in the finance memo."
+    }
+  ],
+  "traps": [
+    "duplicate_rows",
+    "mixed_currencies",
+    "missing_fx_rates",
+    "mixed_date_formats",
+    "missing_values"
+  ],
+  "evidence": {
+    "rows_raw": 5120,
+    "rows_deduped": 5000,
+    "duplicate_rows_removed": 120,
+    "nulls_skipped": 70,
+    "rows_missing_fx_rate": 18,
+    "rows_used": 4912
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

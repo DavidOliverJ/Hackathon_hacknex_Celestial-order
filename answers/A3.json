@@ -1,0 +1,36 @@
+{
+  "id": "A3",
+  "question": "What was the revenue on 03/04/2024?",
+  "answerable": true,
+  "answer": 6852.05,
+  "code_file": "answers/A3.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [
+    {
+      "aspect": "DD/MM vs MM/DD date notation",
+      "interpretations": [
+        "April 3, 2024 (03/04/2024 as DD/MM)",
+        "March 4, 2024 (03/04/2024 as MM/DD)"
+      ],
+      "assumption": "interpreting 03/04/2024 as April 3, 2024 (DD/MM/YYYY) based on dataset slash date formats and range."
+    }
+  ],
+  "traps": [
+    "duplicate_rows",
+    "mixed_currencies",
+    "mixed_date_formats",
+    "missing_values",
+    "document_defines_business_rules"
+  ],
+  "evidence": {
+    "rows_raw": 5120,
+    "duplicate_rows_removed": 120,
+    "rows_in_scope": 17,
+    "nulls_skipped": 0,
+    "rows_missing_fx_rate": 0,
+    "rows_used": 17
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

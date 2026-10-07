@@ -1,0 +1,39 @@
+{
+  "id": "M4",
+  "question": "Which region generated the most revenue in USD during Q3 2024?",
+  "answerable": true,
+  "answer": "North America",
+  "code_file": "answers/M4.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [
+    {
+      "aspect": "fiscal vs calendar quarter for Q3 2024",
+      "interpretations": [
+        "Calendar Q3 (July-September 2024) is fully covered by the dataset date span (2024-01 to 2024-09)",
+        "Fiscal Q3 (starts April 1, so October-December 2024) falls outside the available data span (ends September 2024)"
+      ],
+      "assumption": "using calendar Q3 2024 (July 1 to September 30, 2024) as it is the only interpretation with available data"
+    }
+  ],
+  "traps": [
+    "duplicate_rows",
+    "mixed_currencies",
+    "missing_fx_rates",
+    "mixed_date_formats",
+    "missing_values",
+    "null_regions",
+    "fiscal_vs_calendar_quarters"
+  ],
+  "evidence": {
+    "rows_raw": 5120,
+    "rows_deduped": 5000,
+    "duplicate_rows_removed": 120,
+    "rows_in_scope": 1698,
+    "nulls_skipped": 21,
+    "rows_missing_fx_rate": 0,
+    "rows_used": 1677
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

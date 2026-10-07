@@ -1,0 +1,20 @@
+{
+  "id": "M6",
+  "question": "After removing exact duplicate rows, how many sales transactions remain?",
+  "answerable": true,
+  "answer": 5000,
+  "code_file": "answers/M6.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [],
+  "traps": [
+    "duplicate_rows"
+  ],
+  "evidence": {
+    "rows_raw": 5120,
+    "rows_deduped": 5000,
+    "duplicate_rows_removed": 120
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

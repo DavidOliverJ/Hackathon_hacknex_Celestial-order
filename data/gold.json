@@ -1,0 +1,21 @@
+{
+  "rows_raw": 5120,
+  "rows_deduped": 5000,
+  "distinct_customers": 796,
+  "top_product_category": "Electronics",
+  "top_product_category_count": 10,
+  "avg_qty_per_order": 1.5132,
+  "avg_order_value_usd_q3_2024": 421.42,
+  "total_revenue_usd_jul2024": 247366.74,
+  "median_order_value_usd": 344.5,
+  "top_region_usd_q3_2024": "North America",
+  "total_revenue_usd_inr_may2024": 16585.84,
+  "avg_order_value_usd_q3_calendar": 421.42,
+  "avg_order_value_usd_q3_fiscal_jan_mar": 434.4,
+  "total_revenue_usd_q3_emea": 218923.22,
+  "revenue_usd_2024_03_04": 7129.64,
+  "revenue_usd_2024_04_03": 6852.05,
+  "null_amount_rows": 74,
+  "negative_amount_rows": 59,
+  "duplicate_rows": 120
+}

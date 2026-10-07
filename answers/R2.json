@@ -1,0 +1,16 @@
+{
+  "id": "R2",
+  "question": "What was the profit margin on Electronics products?",
+  "answerable": false,
+  "answer": null,
+  "code_file": null,
+  "refusal_category": "missing_column",
+  "refusal_reason": "The dataset does not contain cost, profit, or margin data for products or transactions.",
+  "ambiguities": [],
+  "traps": [
+    "missing_column"
+  ],
+  "evidence": {},
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

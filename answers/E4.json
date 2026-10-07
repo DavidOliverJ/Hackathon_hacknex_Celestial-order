@@ -1,0 +1,22 @@
+{
+  "id": "E4",
+  "question": "What is the average quantity per order in sales_transactions.csv?",
+  "answerable": true,
+  "answer": 1.5132,
+  "code_file": "answers/E4.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [],
+  "traps": [
+    "duplicate_rows",
+    "missing_values"
+  ],
+  "evidence": {
+    "rows_raw": 5120,
+    "rows_deduped": 5000,
+    "duplicate_rows_removed": 120,
+    "rows_used": 5000
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

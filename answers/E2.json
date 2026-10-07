@@ -1,0 +1,37 @@
+{
+  "id": "E2",
+  "question": "Which product category appears most often in products.csv?",
+  "answerable": true,
+  "answer": "Electronics",
+  "code_file": "answers/E2.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [
+    {
+      "aspect": "Category casing and whitespace inconsistencies",
+      "interpretations": [
+        "Treating exact raw string values as distinct",
+        "Normalizing strings by stripping whitespace and lowercasing"
+      ],
+      "assumption": "Normalize category values (strip whitespace and lowercase) to correctly aggregate matching categories."
+    }
+  ],
+  "traps": [
+    "inconsistent_category_casing"
+  ],
+  "evidence": {
+    "rows_raw": 60,
+    "nulls_skipped": 3,
+    "rows_used": 57,
+    "category_counts": {
+      "electronics": 10,
+      "home & kitchen": 10,
+      "sports": 10,
+      "toys": 10,
+      "books": 9,
+      "apparel": 8
+    }
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

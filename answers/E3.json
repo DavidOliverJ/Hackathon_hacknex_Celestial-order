@@ -1,0 +1,21 @@
+{
+  "id": "E3",
+  "question": "How many distinct customers appear in the sales data?",
+  "answerable": true,
+  "answer": 796,
+  "code_file": "answers/E3.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [],
+  "traps": [
+    "duplicate_rows",
+    "missing_values"
+  ],
+  "evidence": {
+    "rows_raw": 5120,
+    "rows_deduped": 5000,
+    "duplicate_rows_removed": 120
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

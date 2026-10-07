@@ -1,0 +1,17 @@
+{
+  "id": "R4",
+  "question": "Which category is correct for 'Wireless Headphones' - products.csv or product_catalog_export.csv?",
+  "answerable": false,
+  "answer": null,
+  "code_file": null,
+  "refusal_category": "contradiction",
+  "refusal_reason": "The two product catalog tables (products.csv and product_catalog_export.csv) give conflicting categories for 'Wireless Headphones' ('Electronics' vs 'Accessories'), and the data provides no tie-breaker.",
+  "ambiguities": [],
+  "traps": [
+    "contradictory_tables",
+    "inconsistent_category_casing"
+  ],
+  "evidence": {},
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

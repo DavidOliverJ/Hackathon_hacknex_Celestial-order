@@ -1,0 +1,61 @@
+product_id,product_name,category,launch_date,standard_price_usd
+P001,Wireless Headphones,Electronics,2023-09-16,267.82
+P002,Espresso Machine,Home & Kitchen,2022-01-28,516.29
+P003,Yoga Mat,Apparel,2023-09-19,63.75
+P004,Board Game,Sports,2022-04-05,585.57
+P005,Running Shoes,Toys,2022-03-02,473.35
+P006,Desk Lamp,,2022-02-08,83.84
+P007,Bluetooth Speaker,Electronics,2021-12-02,227.51
+P008,Chef's Knife,Home & Kitchen,2022-11-06,556.64
+P009,Rain Jacket, Apparel,2022-01-22,495.07
+P010,Puzzle Box,sports,2022-05-21,270.5
+P011,Novel: Deep Water,Toys,2022-11-06,336.31
+P012,USB-C Hub,Books,2023-05-19,45.78
+P013,Air Fryer,Electronics,2021-11-16,381.95
+P014,Resistance Bands,Home & Kitchen,2021-12-12,456.79
+P015,Kids Drone,Apparel,2022-04-02,582.65
+P016,Chess Set,Sports,2023-01-28,536.73
+P017,Mechanical Keyboard,Toys,2022-04-22,123.23
+P018,Blender,Books,2022-01-24,284.3
+P019,Hiking Backpack,Electronics,2022-09-25,99.34
+P020,Action Figure,Home & Kitchen,2023-10-25,412.36
+P021,Poetry Anthology,,2021-09-21,580.77
+P022,Monitor Stand,Sports,2022-02-23,200.89
+P023,Rice Cooker,Toys,2021-10-06,285.98
+P024,Tennis Racket,Books,2023-01-14,120.17
+P025,Building Blocks,Electronics,2022-10-26,289.62
+P026,Canvas Easel,Home & Kitchen,2023-08-11,142.33
+P027,Webcam HD,APPAREL ,2022-07-29,266.79
+P028,Toaster,sports,2022-04-29,500.95
+P029,Wool Scarf, Toys,2022-06-03,192.92
+P030,Card Deck,Books,2022-04-02,500.7
+P031,Graphic Novel,Electronics,2022-11-19,237.39
+P032,Laptop Sleeve,Home & Kitchen,2022-01-01,178.69
+P033,Stand Mixer,Apparel,2023-05-08,90.73
+P034,Camping Tent,Sports,2022-04-18,126.35
+P035,Soccer Ball,Toys,2022-01-01,473.86
+P036,Robot Kit,Books,2023-11-26,401.59
+P037,Sci-Fi Trilogy,Electronics,2022-10-18,470.19
+P038,Phone Charger,Home & Kitchen,2022-03-29,279.68
+P039,Smart Plug,Apparel,2022-09-19,90.76
+P040,Duvet Cover,SPORTS ,2022-07-26,75.8
+P041,Cycling Gloves,Toys,2022-11-15,286.89
+P042,Stuffed Bear,Books,2022-04-30,342.62
+P043,Art Supplies,Electronics,2023-09-25,383.75
+P044,HDMI Cable,Home & Kitchen,2022-02-05,335.72
+P045,Electric Kettle,Apparel,2023-09-15,187.94
+P046,Fishing Rod,Sports,2022-08-03,26.24
+P047,Baby Monitor,Toys,2023-02-03,135.03
+P048,Tablet Case,Books,2022-11-18,249.85
+P049,LED Strip,Electronics,2021-07-22,146.49
+P050,Microwave,Home & Kitchen,2021-11-20,42.52
+P051,Swim Goggles,apparel,2021-11-18,181.81
+P052,Toy Car Set,Sports,2023-04-02,399.85
+P053,Fountain Pen,Toys,2023-08-15,472.07
+P054,Power Bank,Books,2022-08-05,401.27
+P055,Office Chair,Electronics,2022-12-12,489.9
+P056,Blender Bottle,Home & Kitchen,2022-12-14,106.85
+P057,Sneakers,,2023-02-15,61.31
+P058,Lantern,Sports,2023-11-13,435.64
+P059,Karaoke Mic,Toys,2022-04-05,103.47
+P060,Memory Game,Books,2022-10-27,304.62

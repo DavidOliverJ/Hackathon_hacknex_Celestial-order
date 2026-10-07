@@ -1,0 +1,130 @@
+# 18 gold-labeled questions covering the judging criteria:
+#   E* = easy answerable    M* = messy answerable (dupes/nulls/FX/dates)
+#   R* = must refuse        A* = must flag ambiguity
+#
+# gold_key refers to a value in data/gold.json (computed by data/generate.py).
+questions:
+  # ---- easy -------------------------------------------------------------
+  - id: E1
+    question: "How many rows are in the sales transactions table?"
+    type: answer
+    gold_key: rows_raw
+    tol: 0
+    mess: []
+
+  - id: E2
+    question: "Which product category appears most often in products.csv?"
+    type: answer
+    gold_key: top_product_category
+    tol: 0
+    mess: []
+
+  - id: E3
+    question: "How many distinct customers appear in the sales data?"
+    type: answer
+    gold_key: distinct_customers
+    tol: 0
+    mess: []
+
+  - id: E4
+    question: "What is the average quantity per order in sales_transactions.csv?"
+    type: answer
+    gold_key: avg_qty_per_order
+    tol: 0.01
+    mess: []
+
+  # ---- messy, answerable ------------------------------------------------
+  - id: M1
+    question: "What was the average order value in Q3 2024 in USD?"
+    type: answer
+    gold_key: avg_order_value_usd_q3_2024
+    tol: 1.0
+    mess: [dupes, nulls, fx, dates]
+
+  - id: M2
+    question: "What was the total revenue in USD in July 2024?"
+    type: answer
+    gold_key: total_revenue_usd_jul2024
+    tol: 25.0
+    mess: [dupes, nulls, fx, dates]
+
+  - id: M3
+    question: "What was the median order value in USD across all orders?"
+    type: answer
+    gold_key: median_order_value_usd
+    tol: 1.0
+    mess: [dupes, nulls, fx]
+
+  - id: M4
+    question: "Which region generated the most revenue in USD during Q3 2024?"
+    type: answer
+    gold_key: top_region_usd_q3_2024
+    tol: 0
+    mess: [dupes, nulls, fx, dates, region]
+
+  - id: M5
+    question: "What was the total revenue in USD from INR-denominated orders in May 2024?"
+    type: answer
+    gold_key: total_revenue_usd_inr_may2024
+    tol: 15.0
+    mess: [dupes, nulls, fx, dates]
+
+  - id: M6
+    question: "After removing exact duplicate rows, how many sales transactions remain?"
+    type: answer
+    gold_key: rows_deduped
+    tol: 0
+    mess: [dupes]
+
+  # ---- must refuse ------------------------------------------------------
+  - id: R1
+    question: "What was the average revenue in Q3 2023?"
+    type: refuse
+    gold_category: no_data
+
+  - id: R2
+    question: "What was the profit margin on Electronics products?"
+    type: refuse
+    gold_category: missing_column
+
+  - id: R3
+    question: "What was the total revenue in Q3 2024 converted to Japanese Yen?"
+    type: refuse
+    gold_category: unit_mismatch
+
+  - id: R4
+    question: "Which category is correct for 'Wireless Headphones' - products.csv or product_catalog_export.csv?"
+    type: refuse
+    gold_category: contradiction
+
+  - id: R5
+    question: "What was the total USD revenue from INR-denominated orders between June 10 and June 20, 2024?"
+    type: refuse
+    gold_category: unit_mismatch
+
+  # ---- ambiguity: must flag --------------------------------------------
+  - id: A1
+    question: "What was the average order value in Q3?"
+    type: ambiguous
+    flag_keywords: [fiscal, calendar, quarter]
+    interpretations:
+      calendar: avg_order_value_usd_q3_calendar
+      fiscal_jan_mar: avg_order_value_usd_q3_fiscal_jan_mar
+    tol: 1.0
+
+  - id: A2
+    question: "What was the total revenue in Europe during Q3 2024?"
+    type: ambiguous
+    flag_keywords: [emea, europe, region]
+    interpretations:
+      emea: total_revenue_usd_q3_emea
+    tol: 25.0
+
+  - id: A3
+    question: "What was the revenue on 03/04/2024?"
+    type: ambiguous
+    flag_keywords: [dd/mm, mm/dd, day, month, format, ambiguous]
+    interpretations:
+      ddmm_apr3: revenue_usd_2024_04_03
+      mmdd_mar4: revenue_usd_2024_03_04
+    tol: 15.0

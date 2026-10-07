@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Quality Auditor — find missing, unwanted &amp; wrong data</title>
+<style>
+  :root{
+    --bg:#0d1020; --panel:#151a30; --panel2:#1b2140; --line:#2a3157;
+    --txt:#e7eaf6; --dim:#9aa3c7; --acc:#7c6cff; --acc2:#4fd1c5;
+    --crit:#ff5470; --warn:#ffb020; --info:#4fa3ff; --ok:#2fd08b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:15px/1.5 ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+  code,.mono{font-family:ui-monospace,Consolas,"Courier New",monospace}
+  header{padding:22px 26px 14px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header h1{font-size:20px;margin:0;letter-spacing:.3px}
+  header .sub{color:var(--dim);font-size:13px}
+  header .build{display:inline-block;margin-left:10px;padding:1px 8px;border:1px solid var(--line);
+    border-radius:20px;font:11px/1.6 ui-monospace,Consolas,monospace;color:var(--acc2);
+    background:var(--panel);vertical-align:middle}
+  .spacer{flex:1}
+  button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);
+    border-radius:9px;padding:8px 14px;cursor:pointer;font-size:14px}
+  button:hover{border-color:var(--acc);color:#fff}
+  button.primary{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+  button.primary:hover{filter:brightness(1.1)}
+  button.ghost{background:transparent}
+  button.small-btn{padding:4px 12px;font-size:13px;margin:0 0 4px 8px}
+  main{max-width:1180px;margin:0 auto;padding:22px 22px 80px}
+  /* dropzone */
+  #drop{border:2px dashed var(--line);border-radius:16px;padding:56px 24px;
+    text-align:center;background:var(--panel);margin-top:18px;transition:.15s}
+  #drop.hot{border-color:var(--acc);background:#191f3d}
+  #drop h2{margin:10px 0 6px;font-size:19px}
+  #drop p{color:var(--dim);margin:4px 0;font-size:14px}
+  #drop .big{font-size:44px}
+  /* summary */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px;margin:18px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px}
+  .card .k{color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.8px}
+  .card .v{font-size:26px;font-weight:700;margin-top:2px}
+  .card .s{font-size:12px;color:var(--dim)}
+  .v.crit{color:var(--crit)} .v.warn{color:var(--warn)} .v.info{color:var(--info)}
+  /* ask bar */
+  #askbar{position:sticky;top:8px;z-index:30;background:var(--panel2);
+    border:1px solid var(--line);border-radius:14px;padding:12px;margin:16px 0;
+    box-shadow:0 8px 26px rgba(0,0,0,.35)}
+  #askrow{display:flex;gap:8px}
+  #q{flex:1;background:#0e1226;border:1px solid var(--line);color:var(--txt);
+    border-radius:10px;padding:11px 13px;font-size:15px;outline:none}
+  #q:focus{border-color:var(--acc)}
+  #hint{color:var(--dim);font-size:12px;margin-top:7px}
+  #results{margin-top:8px;display:none}
+  #results .r{display:flex;gap:10px;align-items:flex-start;padding:7px 9px;
+    border-radius:9px;cursor:pointer;font-size:14px}
+  #results .r:hover{background:#232a52}
+  .badge{font-size:11px;padding:2px 8px;border-radius:20px;white-space:nowrap;
+    text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .b-critical{background:#3a1425;color:var(--crit);border:1px solid #65203a}
+  .b-warning{background:#3a2a10;color:var(--warn);border:1px solid #6b4a14}
+  .b-info{background:#0f2440;color:var(--info);border:1px solid #1d4a80}
+  .b-issue{background:#241a4d;color:#b9a8ff;border:1px solid #3d2f7d}
+  .b-column{background:#0f3230;color:var(--acc2);border:1px solid #1d5f5a}
+  #ai{display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+  #ai .turn{background:#0e1226;border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;margin:8px 0;font-size:14.5px}
+  #ai .turn .who{font-size:11px;color:var(--acc2);text-transform:uppercase;
+    letter-spacing:.7px;margin-bottom:4px;font-weight:700}
+  #ai .turn.user .who{color:var(--dim)}
+  #ai .err{color:var(--crit)}
+  /* issues + tables */
+  h2.sec{font-size:17px;margin:26px 0 10px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .chip{border:1px solid var(--line);border-radius:20px;padding:5px 12px;
+    font-size:13px;cursor:pointer;color:var(--dim);background:transparent}
+  .chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  details.issue{background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;margin:9px 0;overflow:hidden}
+  details.issue[open]{border-color:#39406e}
+  details.issue summary{padding:12px 14px;cursor:pointer;display:flex;gap:10px;
+    align-items:center;list-style:none}
+  details.issue summary::-webkit-details-marker{display:none}
+  details.issue summary .t{font-weight:600}
+  details.issue summary .m{color:var(--dim);font-size:13px;margin-left:auto;
+    text-align:right}
+  .body{padding:0 14px 13px;font-size:14px;color:#cdd3ec}
+  .body .detail{margin:4px 0 9px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;
+    vertical-align:top}
+  th{color:var(--dim);font-weight:600;background:#111530;position:sticky;top:0}
+  td.mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+  .wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px}
+  .flash{animation:fl 1.4s ease}
+  @keyframes fl{0%{border-color:var(--acc);box-shadow:0 0 0 3px #7c6cff55}
+    100%{border-color:var(--line);box-shadow:none}}
+  .muted{color:var(--dim)} .small{font-size:12.5px}
+  mark{background:#5b4bd8;color:#fff;border-radius:3px;padding:0 2px}
+  #settings{display:none;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:14px;margin-top:12px;max-width:560px}
+  #settings label{display:block;font-size:12.5px;color:var(--dim);margin:8px 0 4px}
+  #settings input,#settings select{width:100%;background:#0e1226;color:var(--txt);
+    border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:14px}
+  footer{color:var(--dim);font-size:12.5px;text-align:center;padding:20px}
+  /* loading overlay */
+  #loading{position:fixed;inset:0;background:rgba(9,11,24,.94);z-index:200;
+    display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+  #loading.on{display:flex}
+  .spin{width:46px;height:46px;border:4px solid var(--line);
+    border-top-color:var(--acc);border-radius:50%;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  #loadmsg{font-size:17px;font-weight:600}
+  #loadsub{color:var(--dim);font-size:13.5px}
+  @media print{
+    #loading{display:none!important}
+    #askbar,#settings,header button,#drop,.filters{display:none!important}
+    body{background:#fff;color:#000}
+    details.issue{border:1px solid #bbb} .body,td{color:#000} th{background:#eee;color:#000}
+  }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spin"></div>
+  <div id="loadmsg">Reading file…</div>
+  <div id="loadsub"></div>
+</div>
+
+<header>
+  <div>
+    <h1>🔎 Data Quality Auditor</h1>
+    <div class="sub">Upload any CSV — finds missing, unwanted &amp; wrong data automatically, then answers questions about the findings. <span class="build">build 20261007-b2</span></div>
+  </div>
+  <div class="spacer"></div>
+  <button id="exampleBtn" class="ghost">✨ Load example</button>
+  <button id="saveBtn" class="ghost" style="display:none">💾 Save report</button>
+  <button id="gearBtn" class="ghost">⚙ AI settings</button>
+</header>
+
+<main>
+  <div id="settings">
+    <b class="small">AI assistant — local model or Gemini</b>
+    <div class="muted small">Local search over the findings always works offline. The AI
+      only receives a <i>compact summary of the findings</i> (never your raw rows).
+      <b>Local (Ollama)</b> is free &amp; private — serve this page with
+      <code>python local_server.py</code>. Gemini needs an API key stored only in this browser.</div>
+    <label>AI provider</label>
+    <select id="provider">
+      <option value="local" selected>Local — Ollama on this PC</option>
+      <option value="gemini">Gemini API (cloud)</option>
+      <option value="none">None — local search only</option>
+    </select>
+    <div id="localRow">
+      <label>Local model (Ollama)</label>
+      <input id="localModel" list="ollamaModels" placeholder="qwen2.5:3b">
+      <div id="ollamaStatus" class="muted small"></div>
+    </div>
+    <div id="geminiRow" style="display:none">
+      <label>Gemini API key</label>
+      <input id="apiKey" type="password" placeholder="AIza...">
+      <label>Model</label>
+      <select id="gmodel">
+        <option value="gemini-3.5-flash-lite" selected>gemini-3.5-flash-lite (fast)</option>
+        <option value="gemini-3.8-flash">gemini-3.8-flash (stronger)</option>
+        <option value="gemini-flash-latest">gemini-flash-latest</option>
+      </select>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button id="saveSet" class="primary">Save</button>
+      <button id="closeSet">Close</button>
+    </div>
+  </div>
+  <datalist id="ollamaModels"></datalist>
+
+  <section id="drop">
+    <div class="big">📂</div>
+    <h2>Drop a dataset here</h2>
+    <p><code>.csv</code> · <code>.tsv</code> · <code>.txt</code> · <code>.xlsx</code></p>
+    <p>Nothing leaves your browser until you press <b>Ask AI</b>.</p>
+    <p style="margin-top:14px">
+      <button id="browseBtn" class="primary">Choose file</button>
+      <input id="file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls" hidden>
+    </p>
+  </section>
+
+  <section id="report" style="display:none">
+    <div class="cards" id="cards"></div>
+
+    <div id="askbar">
+      <div id="askrow">
+        <input id="q" type="text"
+          placeholder="Search the findings… e.g. missing, duplicates, currency, outliers">
+        <button id="searchBtn">Find</button>
+        <button id="aiBtn" class="primary">✨ Ask AI</button>
+      </div>
+      <div id="hint">Enter = instant local search over the findings &nbsp;·&nbsp;
+        Ask AI = LLM (local Ollama or Gemini) answers using only these findings</div>
+      <div id="results"></div>
+      <div id="ai"></div>
+    </div>
+
+    <h2 class="sec">🚨 Issues found <span class="muted small" id="issueCount"></span>
+      <button id="scanBtn" class="ghost small-btn" style="float:right">🔬 AI second opinion</button></h2>
+    <div class="filters" id="filters"></div>
+    <div id="issues"></div>
+    <div id="aiscan"></div>
+
+    <h2 class="sec">📊 Column profile</h2>
+    <div class="wrap"><table id="cols"></table></div>
+
+    <h2 class="sec">🔍 Data sample <span class="muted small">(first rows as uploaded)</span></h2>
+    <div class="wrap"><table id="sample"></table></div>
+  </section>
+</main>
+
+<footer>Runs 100% in your browser · proofs of every finding shown inline · AI answers cite exact counts</footer>
+
+<script>
+/* ================= ENGINE (pure logic — tested in node) ================= */
+(function(){
+"use strict";
+const MISSING_TOKENS = new Set(["","na","n/a","null","none","nan","#n/a","#ref!","nil",
+  "undefined","unknown","missing","-","--","?","..","--none--"]);
+const CURRENCY_RE = /^([-+]?)\s*[€$£₹¥₩]\s*/;
+const isMissing = v => MISSING_TOKENS.has(String(v==null?"":v).trim().toLowerCase());
+
+function detectDelimiter(lines){
+  const cands=[",",";","\t","|"]; let best=",",bestN=-1;
+  for(const d of cands){
+    let n=0;
+    for(const line of lines.slice(0,5)){
+      let inQ=false;
+      for(let i=0;i<line.length;i++){
+        const ch=line[i];
+        if(ch==='"') inQ=!inQ;
+        else if(!inQ && ch===d) n++;
+      }
+    }
+    if(n>bestN){bestN=n;best=d;}
+  }
+  return bestN>0?best:",";
+}
+
+function splitLines(text){
+  const out=[];let cur="",inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(ch==='"'){
+      if(inQ && text[i+1]==='"'){cur+='"';i++;continue;}
+      inQ=!inQ;cur+=ch;
+    }else if((ch==="\n"||ch==="\r")&&!inQ){
+      if(ch==="\r"&&text[i+1]==="\n")i++;
+      out.push(cur);cur="";
+    }else cur+=ch;
+  }
+  if(cur.length||out.length)out.push(cur);
+  return out.filter((l,i)=>l.length>0||i<out.length-1);
+}
+
+function parseRecords(text,delim){
+  const rows=[];let row=[],cur="",inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(ch==='"'){
+      if(inQ && text[i+1]==='"'){cur+='"';i++;continue;}
+      inQ=!inQ;
+    }else if(ch===delim&&!inQ){row.push(cur);cur="";}
+    else if((ch==="\n"||ch==="\r")&&!inQ){
+      if(ch==="\r"&&text[i+1]==="\n")i++;
+      row.push(cur);rows.push(row);row=[];cur="";
+    }else cur+=ch;
+  }
+  row.push(cur);rows.push(row);
+  return rows.filter(r=>r.length>1||String(r[0]||"").trim()!=="");
+}
+
+function parseDelimited(text){
+  text=String(text).replace(/^\uFEFF/,"");
+  const lines=splitLines(text).slice(0,6);
+  const delim=detectDelimiter(lines);
+  const recs=parseRecords(text,delim);
+  if(!recs.length) throw new Error("empty file");
+  const rawHeaders=recs[0].map(h=>String(h).trim());
+  const seen={};
+  const headers=rawHeaders.map((h,i)=>{
+    let name=h||`column_${i+1}`;
+    seen[name]=(seen[name]||0)+1;
+    if(seen[name]>1)name=`${name}_${seen[name]}`;
+    return name;
+  });
+  const body=recs.slice(1).map(r=>{
+    const o={};
+    headers.forEach((h,i)=>{o[h]=r[i]==null?"":String(r[i]);});
+    return o;
+  });
+  return {headers,rawHeaders,rows:body,delimiter:delim};
+}
+
+function parseNumber(v){
+  let s=String(v).trim(); if(!s)return null;
+  let currency=false,comma=false,paren=false;
+  if(/^\(.*\)$/.test(s)){paren=true;s=s.slice(1,-1).trim();}
+  const m=s.match(CURRENCY_RE);
+  if(m){currency=true;s=s.slice(m[0].length);}
+  if(/%$/.test(s))return null;
+  if(/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)){comma=true;s=s.replace(/,/g,"");}
+  if(!/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(s))return null;
+  let n=parseFloat(s);
+  if(paren||/^\(.*\)$/.test(String(v).trim()))n=-Math.abs(n);
+  if(/^-/.test(String(v).trim().replace(CURRENCY_RE,""))&&!paren)n=-Math.abs(n);
+  return {v:n,currency,comma,paren};
+}
+
+function parseDateVal(v){
+  const s=String(v).trim(); let m;
+  if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})([T ].*)?$/)))
+    return {y:+m[1],mo:+m[2],d:+m[3],fmt:"iso"};
+  if((m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/))){
+    const a=+m[1],b=+m[2];
+    if(a>12)return {y:+m[3],mo:b,d:a,fmt:"dmy"};
+    if(b>12)return {y:+m[3],mo:a,d:b,fmt:"mdy"};
+    return {y:+m[3],mo:a,d:b,fmt:"ambiguous"};
+  }
+  if((m=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/))){
+    const a=+m[1],b=+m[2];
+    if(a>12)return {y:+m[3],mo:b,d:a,fmt:"dmy"};
+    if(b>12)return {y:+m[3],mo:a,d:b,fmt:"mdy"};
+    return {y:+m[3],mo:a,d:b,fmt:"ambiguous"};
+  }
+  if((m=s.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/))){
+    const a=+m[1],b=+m[2];
+    if(a>12)return {y:+m[3],mo:b,d:a,fmt:"dmy"};
+    if(b>12)return {y:+m[3],mo:a,d:b,fmt:"mdy"};
+    return {y:+m[3],mo:a,d:b,fmt:"ambiguous"};
+  }
+  if(/^[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}$/.test(s)){
+    const t=Date.parse(s);
+    if(!isNaN(t)){const dt=new Date(t);return {y:dt.getFullYear(),mo:dt.getMonth()+1,d:dt.getDate(),fmt:"text"};}
+  }
+  if(/\d{4}/.test(s)&&s.length>=8&&!/^\d{5,7}$/.test(s)){
+    const t=Date.parse(s);
+    if(!isNaN(t)){const dt=new Date(t);return {y:dt.getFullYear(),mo:dt.getMonth()+1,d:dt.getDate(),fmt:"other"};}
+  }
+  return null;
+}
+
+function quantile(sorted,q){
+  const pos=(sorted.length-1)*q,base=Math.floor(pos),rest=pos-base;
+  return sorted[base+1]!==undefined?sorted[base]+rest*(sorted[base+1]-sorted[base]):sorted[base];
+}
+
+const POSITIVE_NAME=/\b(price|amount|qty|quantity|count|revenue|total|score|units|stock|salary|weight|height|liters?|litres?|km|miles)\b/i;
+const NEG_WORD=/\b(age|year|days?|hours?|minutes?|percent|pct)\b/i;
+
+function analyze(parsed, fileName){
+  const {headers,rawHeaders,rows}=parsed;
+  const N=rows.length;
+  const issues=[];
+  let issueSeq=0;
+  const add=(sev,cat,column,title,detail,count,examples)=>
+    issues.push({id:"i"+(++issueSeq),sev,cat,column,title,detail,
+      count:count||0,examples:(examples||[]).slice(0,5)});
+  const R=i=>i+2; // spreadsheet-style row number (header = row 1)
+
+  /* ---- headers ---- */
+  rawHeaders.forEach((h,i)=>{
+    if(!String(h).trim())add("critical","wrong",headers[i],
+      `Column ${i+1} has an empty header`,"Give every column a meaningful name.",1,["header row"]);
+    if(String(h)!==String(h).trim())
+      add("warning","inconsistent",headers[i],
+        `Header "${h}" has leading/trailing whitespace`,`Header text: "${h}". This breaks joins and lookups.`,
+        1,[`header: "${h}"`]);
+  });
+  const lower=headers.map(h=>h.toLowerCase());
+  lower.forEach((h,i)=>{
+    const first=lower.indexOf(h);
+    if(first!==i)add("critical","wrong",headers[i],
+      `Duplicate column name "${h}"`,`Columns ${first+1} and ${i+1} share the name "${h}". Values will overwrite each other.`,
+      1,[`columns ${first+1} & ${i+1}`]);
+  });
+
+  /* ---- exact duplicate rows ---- */
+  const sig=new Map();
+  rows.forEach((r,i)=>{
+    const k=headers.map(h=>r[h]).join("\u0001");
+    if(!sig.has(k))sig.set(k,[]);
+    sig.get(k).push(i);
+  });
+  let dupRows=0; const dupExamples=[];
+  for(const idxs of sig.values()){
+    if(idxs.length>1){
+      dupRows+=idxs.length-1;
+      if(dupExamples.length<3)
+        dupExamples.push(`rows ${idxs.slice(0,5).map(R).join(", ")} identical`);
+    }
+  }
+  if(dupRows>0)add("critical","duplicate",null,
+    `${dupRows} exactly duplicated row${dupRows>1?"s":""}`,
+    `${N} rows contain ${N-dupRows} unique records — an ETL double-run or copy-paste. Aggregations double-count these.`,
+    dupRows,dupExamples);
+
+  const allEmpty=rows.filter(r=>headers.every(h=>isMissing(r[h])));
+  if(allEmpty.length)
+    add("warning","missing",null,`${allEmpty.length} completely empty row${allEmpty.length>1?"s":""}`,
+      "Rows where every cell is blank/NA-like.",allEmpty.length,
+      allEmpty.slice(0,5).map(r=>`row ${R(rows.indexOf(r))}`));
+
+  /* ---- per column ---- */
+  const columns=headers.map(h=>{
+    const raws=rows.map(r=>r[h]==null?"":String(r[h]));
+    const missingIdx=[];const nonMissing=[];
+    let ws=0;
+    raws.forEach((v,i)=>{
+      if(isMissing(v))missingIdx.push(i);
+      else{nonMissing.push({i,v:t(v)});
+        if(v!==v.trim())ws++;}
+    });
+    function t(v){return String(v).trim();}
+    const values=nonMissing.map(o=>o.v);
+    const uniq=new Set(values);
+    const nums=values.map(parseNumber);
+    const numOK=nums.filter(x=>x!==null);
+    const numericRatio=values.length?numOK.length/values.length:0;
+    const dates=values.map(parseDateVal).filter(Boolean);
+    const dateRatio=values.length?dates.length/values.length:0;
+    const bools=values.filter(v=>/^(true|false|yes|no|y|n|0|1)$/i.test(v));
+    const boolRatio=values.length?bools.length/values.length:0;
+
+    let type="text";
+    if(!values.length)type="empty";
+    else if(numericRatio>=0.8)type="number";
+    else if(dateRatio>=0.6)type="date";
+    else if(boolRatio>=0.9)type="boolean";
+    else if(uniq.size/Math.max(values.length,1)<=0.5)type="category";
+    const idish=/(^|_|-)id$|(^|_|-)(code|key|uuid|guid)$|(^|_)ref$/i.test(h);
+    if(idish)type+=" · id";
+
+    /* missing */
+    if(values.length===0&&N>0){
+      add("critical","missing",h,`Column "${h}" is entirely empty`,
+        `${N} of ${N} cells have no value. Drop it or backfill before analysis.`,
+        N,["all rows empty"]);
+    }else if(missingIdx.length){
+      const pct=100*missingIdx.length/N;
+      const sev=pct>=40?"critical":pct>=5?"warning":"info";
+      const shown=[...new Set(missingIdx.map(i=>raws[i].trim()))]
+        .slice(0,4).map(x=>x===""?"(blank)":`"${x}"`);
+      add(sev,"missing",h,
+        `${pct.toFixed(1)}% missing values in "${h}"`,
+        `${missingIdx.length} of ${N} cells are empty or NA-like (${shown.join(", ")}). Median/mean over this column silently drops them.`,
+        missingIdx.length,
+        missingIdx.slice(0,4).map(i=>`row ${R(i)} = "${raws[i]}"`));
+    }
+
+    /* whitespace */
+    if(ws)add("warning","inconsistent",h,
+      `${ws} value${ws>1?"s":""} in "${h}" ${ws>1?"have":"has"} stray spaces`,
+      `Leading/trailing whitespace makes "Electronics" ≠ "Electronics " — groups split, joins fail.`,
+      ws,nonMissing.filter(o=>o.v!==raws[o.i]).slice(0,4)
+        .map(o=>`row ${R(o.i)} = "${raws[o.i]}"`));
+
+    /* emails */
+    if(/email/i.test(h)&&values.length){
+      const badE=values.filter(v=>!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v));
+      if(badE.length)
+        add("warning","wrong",h,
+          `${badE.length} invalid email address${badE.length>1?"es":""} in "${h}"`,
+          `Examples: ${badE.slice(0,4).map(v=>`"${v}"`).join(", ")} — these will bounce on send.`,
+          badE.length,nonMissing.filter(o=>!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(o.v))
+            .slice(0,4).map(o=>`row ${R(o.i)} = "${o.v}"`));
+      const dupMail=values.length-uniq.size;
+      if(dupMail>0)add("warning","duplicate",h,
+        `${dupMail} duplicate email${dupMail>1?"s":""} in "${h}"`,
+        "Repeated addresses mean double-counting in mailers and dedupe failures.",
+        dupMail,["e.g. "+[...new Set(values.filter(v=>values.map(x=>x.toLowerCase()).filter(y=>y===v.toLowerCase()).length>1))].slice(0,4).join(", ")]);
+    }
+
+    /* phone columns */
+    if(/phone|mobile|cell|tel|fax|contact/i.test(h)&&values.length){
+      const digits=v=>v.replace(/[^\d]/g,"");
+      const invalid=nonMissing.filter(o=>{const d=digits(o.v);return d.length<7||d.length>15;});
+      if(invalid.length)
+        add("warning","wrong",h,
+          `${invalid.length} value${invalid.length>1?"s":""} in "${h}" look like invalid phone numbers`,
+          "A phone should carry 7–15 digits. These will break dialers and lookups.",
+          invalid.length,invalid.slice(0,4).map(o=>`row ${R(o.i)} = "${o.v}"`));
+      const styles=new Map();
+      nonMissing.forEach(o=>{
+        const parts=["parens","dots","dashes","spaces","plus","ext"]
+          .filter(f=>f==="parens"?/\(\d{3}\)/.test(o.v):
+                    f==="dots"?/\./.test(o.v):
+                    f==="dashes"?/-/.test(o.v):
+                    f==="spaces"?/\s/.test(o.v):
+                    f==="plus"?/^\+/.test(o.v):
+                    /x\d{3,}|ext/i.test(o.v)).join(",")||"plain";
+        styles.set(parts,(styles.get(parts)||0)+1);
+      });
+      if(styles.size>1){
+        const top=[...styles].sort((a,b)=>b[1]-a[1]);
+        add("warning","inconsistent",h,
+          `${top[0][1]} local-number vs ${top[1][1]}+ other styles — mixed phone formats in "${h}"`,
+          `Formats seen: ${top.slice(0,4).map(([k,n])=>`${k}×${n}`).join(", ")}. Different rows use parentheses, dots, dashes, extensions or country codes inconsistently — treat as text, never parse by format.`,
+          values.length,nonMissing.slice(0,4).map(o=>`row ${R(o.i)} = "${o.v}"`));
+      }
+    }
+
+    if(type.startsWith("number")){
+      const wrong=nonMissing.filter(o=>parseNumber(o.v)===null);
+      if(wrong.length&&wrong.length/Math.max(nonMissing.length,1)<=0.3)
+        add("critical","wrong",h,
+          `${wrong.length} non-numeric value${wrong.length>1?"s":""} in numeric column "${h}"`,
+          `These cells break sums/averages (dtype becomes object): ${wrong.slice(0,4).map(o=>`"${o.v}"`).join(", ")}`,
+          wrong.length,wrong.slice(0,4).map(o=>`row ${R(o.i)} = "${o.v}"`));
+      const cur=numOK.filter(x=>x.currency);
+      if(cur.length)
+        add("warning","format",h,
+          `"${h}" mixes currency symbols into values`,
+          `${cur.length} values carry $/€/₹/¥ symbols inside the number — parsing needs stripping, and symbols mix units.`,
+          cur.length,nonMissing.filter(o=>parseNumber(o.v)&&parseNumber(o.v).currency)
+            .slice(0,4).map(o=>`row ${R(o.i)} = "${o.v}"`));
+      const grp=numOK.filter(x=>x.comma);
+      if(grp.length&&!cur.length)
+        add("info","format",h,
+          `"${h}" uses thousands separators (1,234)`,
+          `${grp.length} values have comma grouping; some parsers read "1,234" as two cells or NaN.`,
+          grp.length,nonMissing.filter(o=>{const p=parseNumber(o.v);return p&&p.comma;})
+            .slice(0,4).map(o=>`row ${R(o.i)} = "${o.v}"`));
+
+      /* outliers */
+      const arr=numOK.map(x=>x.v).sort((a,b)=>a-b);
+      if(arr.length>=30){
+        const q1=quantile(arr,.25),q3=quantile(arr,.75),iqr=q3-q1;
+        if(iqr>0){
+          const lo=q1-3*iqr,hi=q3+3*iqr;
+          const out=nonMissing.filter(o=>{const p=parseNumber(o.v);return p&&(p.v<lo||p.v>hi);});
+          if(out.length&&out.length/arr.length<=0.15){
+            const vals=out.map(o=>({i:o.i,v:parseNumber(o.v).v}))
+              .sort((a,b)=>Math.abs(b.v-(q3+q1)/2)-Math.abs(a.v-(q3+q1)/2));
+            add("warning","outlier",h,
+              `${out.length} outlier${out.length>1?"s":""} in "${h}"`,
+              `Typical range ${fmt(q1)} … ${fmt(q3)} (Tukey 3×IQR fences ${fmt(lo)} … ${fmt(hi)}). Outliers often mean unit errors (1000×), wrong currency, or typos.`,
+              out.length,vals.slice(0,4).map(o=>`row ${R(o.i)} = ${fmt(o.v)}`));
+          }
+        }
+      }
+
+      /* sequential row counter (redundant index) */
+      {
+        const u=[...new Set(arr.filter(x=>Number.isInteger(x)))].sort((a,b)=>a-b);
+        if(u.length>=10&&u[u.length-1]-u[0]===u.length-1&&
+           u.length/Math.max(arr.length,1)>=0.9&&u[0]>=1)
+          add("info","unwanted",h,
+            `Column "${h}" is a sequential row counter (${u[0]}…${u[u.length-1]})`,
+            "Values are just the row position — it carries no information and duplicates the CSV row number. Exclude it from analysis.",
+            u.length,[`${u[0]} → ${u[u.length-1]}`]);
+      }
+
+      /* range sanity by name */
+      if(POSITIVE_NAME.test(h)&&!NEG_WORD.test(h)){
+        const neg=numOK.filter(x=>x.v<0);
+        if(neg.length)
+          add("warning","wrong",h,
+            `${neg.length} negative value${neg.length>1?"s":""} in "${h}"`,
+            `Column name implies positive values. Negatives are either data-entry errors or a convention (returns/refunds) that must be documented.`,
+            neg.length,nonMissing.filter(o=>{const p=parseNumber(o.v);return p&&p.v<0;})
+              .slice(0,4).map(o=>`row ${R(o.i)} = ${o.v}`));
+      }
+      if(/\bage\b/i.test(h)){
+        const bad=numOK.filter(x=>x.v<0||x.v>120);
+        if(bad.length)add("critical","wrong",h,
+          `${bad.length} value${bad.length>1?"s":""} outside human age range (0–120)`,
+          `"${h}" should be 0..120.`,bad.length,
+          nonMissing.filter(o=>{const p=parseNumber(o.v);return p&&(p.v<0||p.v>120);})
+            .slice(0,4).map(o=>`row ${R(o.i)} = ${o.v}`));
+      }
+      if(/percent|pct|percentile/i.test(h)){
+        const bad=numOK.filter(x=>x.v<0||x.v>100);
+        if(bad.length)add("warning","wrong",h,
+          `${bad.length} value${bad.length>1?"s":""} outside 0–100%`,
+          `"${h}" looks like a percentage.`,bad.length,
+          nonMissing.filter(o=>{const p=parseNumber(o.v);return p&&(p.v<0||p.v>100);})
+            .slice(0,4).map(o=>`row ${R(o.i)} = ${o.v}`));
+      }
+    }
+
+    /* numeric-looking column stored as text (e.g. "age" = "thirty") */
+    if(!type.startsWith("number")&&!type.startsWith("date")&&values.length&&
+       /\b(age|year|birth|price|cost|amount|quantity|qty|count|total|revenue|salary|income|balance|weight|height|temperature|score|rating|stock|units|percent|pct)\b/i.test(h)){
+      const broken=values.slice(0,4);
+      add("warning","wrong",h,
+        `"${h}" looks numeric but is stored as text`,
+        `Values like ${broken.map(v=>`"${v}"`).join(", ")} won't sum, average or sort numerically. Recast the column or fix the data source.`,
+        values.length,nonMissing.slice(0,4).map(o=>`row ${R(o.i)} = "${o.v}"`));
+    }
+
+    /* dates */
+    if(type==="date"){
+      const fmtCount={};let amb=0;const ambEx=[];
+      dates.forEach(d=>{fmtCount[d.fmt]=(fmtCount[d.fmt]||0)+1;
+        if(d.fmt==="ambiguous"){amb++;if(ambEx.length<4)ambEx.push(d.mo+"/"+d.d+"/"+d.y);}});
+      const fmts=Object.keys(fmtCount).filter(f=>fmtCount[f]>0);
+      if(fmts.length>1){
+        const maj=fmts.reduce((a,b)=>fmtCount[a]>=fmtCount[b]?a:b);
+        const minority=dates.filter(d=>d.fmt!==maj).length;
+        const minEx=[];
+        values.forEach(v=>{const d=parseDateVal(v);
+          if(d&&d.fmt!==maj&&minEx.length<4)minEx.push(v);});
+        add("warning","format",h,
+          `Mixed date formats in "${h}"`,
+          `Majority are ${maj} (${fmtCount[maj]} rows), but ${minority} row(s) use ${fmts.filter(f=>f!==maj).map(f=>`${f} (${fmtCount[f]})`).join(", ")}. Mixed formats break sorting, filtering and grouping unless every row is parsed explicitly.`,
+          minority,minEx);
+      }
+      if(amb)
+        add("warning","wrong",h,
+          `${amb} ambiguous day/month date${amb>1?"s":""} in "${h}"`,
+          `Values like ${ambEx.join(", ")} can be read as DD/MM or MM/DD — two different days. Resolve the convention before filtering by date.`,
+          amb,ambEx);
+      const now=new Date();
+      const fut=dates.filter(d=>new Date(d.y,d.mo-1,d.d)>now);
+      if(fut.length)add("warning","wrong",h,
+        `${fut.length} future-dated value${fut.length>1?"s":""} in "${h}"`,
+        "Dates after today usually mean a wrong year or a timezone/format bug.",
+        fut.length,values.filter(v=>{const d=parseDateVal(v);return d&&new Date(d.y,d.mo-1,d.d)>now;})
+          .slice(0,4));
+    }
+
+    /* casing consistency for categories */
+    if(type==="category"||uniq.size<=40&&values.length>=10){
+      const groups=new Map();
+      values.forEach(v=>{
+        const k=v.toLowerCase().replace(/\s+/g," ").trim();
+        if(!groups.has(k))groups.set(k,new Set());
+        groups.get(k).add(v);
+      });
+      for(const [k,set] of groups){
+        if(set.size>1){
+          const variants=[...set];
+          add("warning","inconsistent",h,
+            `"${k}" is spelled ${set.size} different ways in "${h}"`,
+            `Variants: ${variants.slice(0,5).map(v=>`"${v}"`).join(", ")} — these count as separate categories and split totals.`,
+            values.filter(v=>v.toLowerCase().replace(/\s+/g," ").trim()===k).length,
+            variants.slice(0,5));
+          break;
+        }
+      }
+    }
+
+    /* constant / empty-ish */
+    if(values.length&&uniq.size===1)
+      add("warning","unwanted",h,
+        missingIdx.length?
+          `Column "${h}" has only one distinct non-empty value ("${values[0]}")`:
+          `Column "${h}" is constant (always "${values[0]}")`,
+        missingIdx.length?
+          `Every filled cell says "${values[0]}" (${missingIdx.length} blank too) — carries almost no information.`:
+          "A single distinct value carries no information — remove it from analysis.",
+        values.length,[values[0]]);
+
+    /* duplicate ids */
+    if(idish&&values.length){
+      const seen=new Map();let dup=0;const dups=[];
+      values.forEach(v=>{
+        if(seen.has(v)){dup++;if(dups.length<4)dups.push(v);}
+        seen.set(v,true);
+      });
+      if(dup&&uniq.size/values.length>=0.9)add("warning","duplicate",h,
+        `${dup} duplicate identifier${dup>1?"s":""} in "${h}"`,
+        `Key column should be unique. Repeated keys: ${dups.join(", ")}`,
+        dup,dups);
+    }
+
+    return {name:h,type,missing:missingIdx.length,
+      missingPct:N?+(100*missingIdx.length/N).toFixed(1):0,
+      unique:uniq.size,sample:values.slice(0,3)};
+  });
+
+  /* ---- multi-currency trap ---- */
+  const curCol=columns.find(c=>/curr/i.test(c.name));
+  const amtCol=columns.find(c=>/^(amount|price|revenue|total|value|sales)/i.test(c.name)&&c.type.startsWith("number"));
+  if(curCol&&amtCol){
+    const counts=new Map();
+    rows.forEach(r=>{const v=(r[curCol.name]||"").trim();if(v)counts.set(v,(counts.get(v)||0)+1);});
+    if(counts.size>1)
+      add("warning","wrong",curCol.name,
+        `Amounts span ${counts.size} currencies — do not sum them raw`,
+        `"${amtCol.name}" is stored in ${[...counts].map(([k,v])=>`${k}(${v})`).join(", ")} via "${curCol.name}". Convert with a rate table before aggregating; mixing units inflates totals ~100×.`,
+        rows.length,[...counts].map(([k,v])=>`${k}: ${v} rows`));
+  }
+
+  issues.sort((a,b)=>{
+    const o={critical:0,warning:1,info:2};
+    return o[a.sev]-o[b.sev]||b.count-a.count;
+  });
+
+  const nCrit=issues.filter(i=>i.sev==="critical").length;
+  const nWarn=issues.filter(i=>i.sev==="warning").length;
+  const nInfo=issues.filter(i=>i.sev==="info").length;
+  const score=Math.max(0,Math.round(100-10*nCrit-3*nWarn-1*nInfo));
+  const grade=score>=90?"A":score>=75?"B":score>=60?"C":score>=40?"D":"F";
+
+  return {file:fileName||"dataset",rows:N,cols:headers.length,
+    issues,columns,score,grade,
+    counts:{critical:nCrit,warning:nWarn,info:nInfo},
+    duplicateRows:dupRows,
+    sample:rows.slice(0,8),
+    headers};
+}
+
+function fmt(n){
+  if(!isFinite(n))return String(n);
+  const a=Math.abs(n);
+  if(a>=1000)return n.toLocaleString(undefined,{maximumFractionDigits:2});
+  return (Math.round(n*100)/100).toString();
+}
+
+function buildDigest(rep,limit){
+  const obj={
+    file:rep.file,rows:rep.rows,columns:rep.cols,health_score:rep.score,grade:rep.grade,
+    counts:rep.counts,exact_duplicate_rows:rep.duplicateRows,
+    columns_profile:rep.columns.map(c=>({
+      name:c.name,type:c.type,missing:`${c.missing} (${c.missingPct}%)`,
+      unique:c.unique,sample:c.sample})),
+    issues:rep.issues.map(i=>({
+      severity:i.sev,category:i.cat,column:i.column,title:i.title,
+      detail:i.detail,count:i.count,examples:i.examples}))
+  };
+  let s=JSON.stringify(obj,null,1);
+  if(limit&&s.length>limit)s=s.slice(0,limit)+"\n...(truncated)";
+  return s;
+}
+
+globalThis.AQ={parseDelimited,analyze,buildDigest,parseNumber,parseDateVal,fmt,VERSION:"1.5.0"};
+})();
+/* =============== end engine =============== */
+</script>
+
+<script>
+/* ================= UI ================= */
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const state={report:null,index:[],filter:"all",history:[]};
+const SAMPLE=`order_id,region,amount,currency,age,notes,signup_date
+1,EMEA,"1,234.50",USD,34,ok,2024-01-05
+2,emea,€980,USD,41, ok ,03/04/2024
+3,EMEA,1200,USD,,missing,2024-02-11
+3,EMEA,1200,USD,,missing,2024-02-11
+4,APAC,-45,USD,250,n/a,2024-03-02
+5,EMEA  ,800,EUR,37,"unknown",13/09/2024
+6,North,not-a-number,USD,29,ok,2024-04-18
+7,North,640,GBP,44,ok,2024-05-21
+8,South,1500,USD,31,ok,2024-06-02
+9,EMEA,1200,USD,38,,
+10,APAC,2200,USD,36,ok,2024-07-14`;
+
+  /* ---------- settings ---------- */
+  const LS={pkey:"audit_gemini_key",provider:"audit_provider",lmodel:"audit_local_model",
+    gmodel:"audit_gemini_model"};
+  const cfg={
+    provider:localStorage.getItem(LS.provider)||"local",
+    lmodel:localStorage.getItem(LS.lmodel)||"",
+    gkey:localStorage.getItem(LS.pkey)||"",
+    gmodel:localStorage.getItem(LS.gmodel)||"gemini-3.5-flash-lite"
+  };
+  const LOCAL_PREFS=["qwen2.5:3b","qwen2.5:1.5b","llama3.2:3b","llama3.2:1b",
+    "gemma3:4b","phi3.5","gemma2:2b","mistral:7b"];
+
+  function syncProviderUI(){
+    const p=$("#provider").value;
+    $("#localRow").style.display=p==="local"?"block":"none";
+    $("#geminiRow").style.display=p==="gemini"?"block":"none";
+  }
+  $("#gearBtn").onclick=()=>{const s=$("#settings");
+    s.style.display=s.style.display==="block"?"none":"block";};
+  $("#closeSet").onclick=()=>$("#settings").style.display="none";
+  $("#provider").onchange=syncProviderUI;
+  $("#saveSet").onclick=()=>{
+    localStorage.setItem(LS.provider,$("#provider").value);
+    localStorage.setItem(LS.lmodel,$("#localModel").value.trim());
+    localStorage.setItem(LS.pkey,$("#apiKey").value.trim());
+    localStorage.setItem(LS.gmodel,$("#gmodel").value);
+    cfg.provider=$("#provider").value;cfg.lmodel=$("#localModel").value.trim();
+    cfg.gkey=$("#apiKey").value.trim();cfg.gmodel=$("#gmodel").value;
+    $("#settings").style.display="none";
+  };
+  $("#provider").value=cfg.provider;
+  $("#localModel").value=cfg.lmodel;
+  $("#apiKey").value=cfg.gkey;
+  $("#gmodel").value=cfg.gmodel;
+  syncProviderUI();
+
+  /* discover local Ollama models (only when served via local_server.py) */
+  function discoverOllama(){
+    const status=$("#ollamaStatus");
+    const dl=$("#ollamaModels");
+    if(typeof fetch!=="function"){
+      status.textContent="No fetch — serve via  python local_server.py  to reach Ollama.";
+      return;
+    }
+    fetch("local/tags").then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+      .then(data=>{
+        const names=(data.models||[]).map(m=>m.name).sort();
+        dl.innerHTML=names.map(n=>`<option value="${esc(n)}">`).join("");
+        const pick=names.find(n=>LOCAL_PREFS.some(p=>n.toLowerCase().includes(p.split(":")[0])))
+          || LOCAL_PREFS.find(p=>names.includes(p));
+        if(!cfg.lmodel&&pick){cfg.lmodel=pick;$("#localModel").value=pick;}
+        status.textContent=names.length
+          ? "Connected — "+names.length+" model"+(names.length>1?"s":"")+" installed"
+          : "Ollama is running but has no models. Pull one, e.g.:  ollama pull qwen2.5:3b";
+      }).catch(()=>{
+        status.textContent="Ollama not reachable — open via  python local_server.py  "+
+          "(or start Ollama) to use a local model.";
+      });
+  }
+  discoverOllama();
+
+  /* ---------- upload ---------- */
+  $("#browseBtn").onclick=()=>$("#file").click();
+  $("#file").onchange=e=>{const f=e.target.files[0];if(f)handleFile(f);};
+  const dz=$("#drop");
+  ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{
+    e.preventDefault();dz.classList.add("hot");}));
+  ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{
+    e.preventDefault();dz.classList.remove("hot");}));
+  dz.addEventListener("drop",e=>{
+    const f=e.dataTransfer.files[0];if(f)handleFile(f);});
+  $("#exampleBtn").onclick=()=>loadText("example.csv",SAMPLE);
+
+  const tick=()=>new Promise(r=>setTimeout(r,30));
+  function showLoad(msg,sub){
+    $("#loadmsg").textContent=msg;
+    $("#loadsub").textContent=sub||"";
+    $("#loading").classList.add("on");
+  }
+  function hideLoad(){$("#loading").classList.remove("on");}
+
+  function handleFile(f){
+    showLoad("Reading "+f.name+"…");
+    const name=f.name.toLowerCase();
+    if(/\.(xlsx|xls)$/.test(name)){
+      if(!window.XLSX){hideLoad();alert("Excel support needs the SheetJS CDN (no internet?). "+
+        "Save the sheet as CSV and drop it again.");return;}
+      const r=new FileReader();
+      r.onload=async()=>{try{
+        const wb=XLSX.read(new Uint8Array(r.result),{type:"array"});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        await loadText(f.name,XLSX.utils.sheet_to_csv(ws,{blankrows:false}),true);
+      }catch(err){hideLoad();alert("Could not read Excel file: "+err);}};
+      r.readAsArrayBuffer(f);
+      return;
+    }
+    const r=new FileReader();
+    r.onload=()=>loadText(f.name,r.result);
+    r.readAsText(f);
+  }
+
+  async function loadText(name,text,alreadyCovered){
+    try{
+      if(!alreadyCovered)showLoad("Reading "+name+"…");
+      await tick();
+      const parsed=AQ.parseDelimited(text);
+      if(parsed.rows.length===0){hideLoad();alert("No data rows found.");return;}
+      showLoad("Analyzing "+parsed.rows.length.toLocaleString()+" rows",
+        parsed.headers.length+" columns · "+name);
+      await tick();
+      state.report=AQ.analyze(parsed,name);
+      state.history=[];
+      $("#ai").innerHTML="";$("#ai").style.display="none";
+      render(state.report);
+      hideLoad();
+    }catch(err){hideLoad();alert("Could not parse file: "+err.message);}
+  }
+
+  /* ---------- render ---------- */
+  function esc(s){return String(s).replace(/[&<>"]/g,c=>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+  function render(rep){
+    $("#drop").style.display="none";
+    $("#report").style.display="block";
+    $("#saveBtn").style.display="inline-block";
+
+    $("#cards").innerHTML=`
+      <div class="card"><div class="k">Health score</div>
+        <div class="v" style="color:${rep.score>=75?"var(--ok)":rep.score>=50?"var(--warn)":"var(--crit)"}">
+        ${rep.score}<span style="font-size:15px;color:var(--dim)">/100 · ${rep.grade}</span></div>
+        <div class="s">${esc(rep.file)} · engine v${AQ.VERSION}</div></div>
+      <div class="card"><div class="k">Rows × Cols</div>
+        <div class="v">${rep.rows.toLocaleString()} × ${rep.cols}</div>
+        <div class="s">${rep.duplicateRows} exact duplicate rows</div></div>
+      <div class="card"><div class="k">Critical</div>
+        <div class="v crit">${rep.counts.critical}</div><div class="s">fix first</div></div>
+      <div class="card"><div class="k">Warnings</div>
+        <div class="v warn">${rep.counts.warning}</div><div class="s">review</div></div>
+      <div class="card"><div class="k">Info</div>
+        <div class="v info">${rep.counts.info}</div><div class="s">good to know</div></div>`;
+
+    const cats=[["all","All"],["critical","Critical"],["warning","Warnings"],
+      ["info","Info"],["missing","Missing"],["duplicate","Duplicates"],
+      ["wrong","Wrong values"],["outlier","Outliers"],["inconsistent","Inconsistent"],
+      ["format","Formats"],["unwanted","Unwanted"]];
+    $("#filters").innerHTML=cats.map(([k,l])=>
+      `<button class="chip ${state.filter===k?"on":""}" data-f="${k}">${l}</button>`).join("");
+    $("#filters").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{
+      state.filter=b.dataset.f;
+      $("#filters").querySelectorAll(".chip").forEach(x=>
+        x.classList.toggle("on",x.dataset.f===state.filter));
+      renderIssues(rep);
+    });
+
+    renderIssues(rep);
+
+    $("#cols").innerHTML=
+      `<thead><tr><th>Column</th><th>Type</th><th>Missing</th><th>Unique</th><th>Sample values</th></tr></thead><tbody>`+
+      rep.columns.map(c=>`<tr>
+        <td class="mono">${esc(c.name)}</td>
+        <td>${esc(c.type)}</td>
+        <td>${c.missing?`<b style="color:${c.missingPct>=5?"var(--crit)":"var(--warn)"}">${c.missingPct}%</b>`:"0%"}</td>
+        <td>${c.unique}</td>
+        <td class="mono small">${c.sample.map(esc).join(" · ")}</td></tr>`).join("")+
+      `</tbody>`;
+
+    $("#sample").innerHTML=
+      `<thead><tr>${rep.headers.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>`+
+      rep.sample.map(r=>`<tr>${rep.headers.map(h=>
+        `<td class="mono">${esc(r[h])}</td>`).join("")}</tr>`).join("")+`</tbody>`;
+
+    buildIndex(rep);
+  }
+
+  function visibleIssues(rep){
+    return rep.issues.filter(i=>state.filter==="all"||i.sev===state.filter||i.cat===state.filter);
+  }
+
+  function renderIssues(rep){
+    const list=visibleIssues(rep);
+    $("#issues").innerHTML=list.length?list.map(i=>`
+      <details class="issue" id="${i.id}">
+        <summary>
+          <span class="badge b-${i.sev}">${i.sev}</span>
+          <span class="badge b-issue">${i.cat}</span>
+          <span class="t">${esc(i.title)}</span>
+          <span class="m">${i.column?esc(i.column)+"<br>":""}${i.count.toLocaleString()} affected</span>
+        </summary>
+        <div class="body">
+          <div class="detail">${esc(i.detail)}</div>
+          ${i.examples.length?`<div class="small muted" style="margin-bottom:4px">Examples:</div>
+            <ul class="small mono" style="margin:0 0 8px 18px;padding:0">
+            ${i.examples.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:""}
+        </div>
+      </details>`).join(""):
+      `<div class="muted">No issues match this filter. 🎉</div>`;
+    $("#issueCount").textContent=state.filter==="all"?
+      `— ${rep.issues.length} found`:
+      `— showing ${list.length} of ${rep.issues.length}`;
+  }
+
+  /* ---------- local search ---------- */
+  function buildIndex(rep){
+    state.index=[
+      ...rep.issues.map(i=>({kind:"issue",ref:i.id,
+        text:[i.title,i.detail,i.column||"",i.cat,i.sev,...i.examples].join(" ")})),
+      ...rep.columns.map((c,idx)=>({kind:"column",ref:"col"+idx,
+        text:[c.name,c.type,`missing ${c.missingPct}%`,`unique ${c.unique}`,...c.sample].join(" ")}))
+    ];
+  }
+
+  function search(){
+    const q=$("#q").value.trim().toLowerCase();
+    const box=$("#results");
+    if(!q){box.style.display="none";box.innerHTML="";return;}
+    const terms=q.split(/\s+/);
+    const hits=state.index.filter(it=>terms.every(t=>it.text.toLowerCase().includes(t)))
+      .slice(0,12);
+    box.style.display="block";
+    box.innerHTML=hits.length?hits.map((h,idx)=>{
+      const snippet=snippetFor(h.text,terms[0]);
+      return `<div class="r" data-ref="${h.ref}" data-kind="${h.kind}">
+        <span class="badge b-${h.kind==="issue"?"issue":"column"}">${h.kind}</span>
+        <span>${esc(snippet)}</span></div>`;}).join(""):
+      `<div class="r muted">No finding matches "${esc(q)}" — try Ask AI for a reasoned answer.</div>`;
+    box.querySelectorAll(".r[data-ref]").forEach(el=>el.onclick=()=>jump(el.dataset.ref));
+  }
+
+  function snippetFor(text,term){
+    const i=text.toLowerCase().indexOf(term);
+    if(i<0)return text.slice(0,140);
+    const s=Math.max(0,i-50);
+    return (s>0?"…":"")+text.slice(s,i)+"<mark>"+text.slice(i,i+term.length)+
+      "</mark>"+text.slice(i+term.length,i+term.length+90)+"…";
+  }
+
+  function jump(ref){
+    if(ref.startsWith("col")){
+      const t=$("#cols").querySelectorAll("tbody tr")[+ref.slice(3)];
+      if(t){t.scrollIntoView({behavior:"smooth",block:"center"});
+        t.classList.remove("flash");void t.offsetWidth;t.classList.add("flash");}
+      return;
+    }
+    const el=document.getElementById(ref);
+    if(el){el.open=true;el.scrollIntoView({behavior:"smooth",block:"center"});
+      el.classList.remove("flash");void el.offsetWidth;el.classList.add("flash");}
+  }
+
+  $("#q").addEventListener("input",()=>{clearTimeout(window.__st);
+    window.__st=setTimeout(search,140);});
+  $("#q").addEventListener("keydown",e=>{
+    if(e.key==="Enter"){search();
+      const first=$("#results .r[data-ref]");if(first)first.click();}
+    if(e.key==="Enter"&&e.ctrlKey)askAI();
+  });
+  $("#searchBtn").onclick=search;
+
+  /* ---------- Ask AI ---------- */
+  $("#aiBtn").onclick=askAI;
+
+  async function askAI(){
+    const q=$("#q").value.trim();
+    const panel=$("#ai");
+    panel.style.display="block";
+    if(!q){appendTurn("user","(empty question)",panel);
+      appendTurn("ai","Type what you want to find in the findings first.",panel,true);return;}
+    if(!state.report){appendTurn("ai","Upload a dataset first.",panel,true);return;}
+    const provider=aiProvider();
+    const model=currentModel();
+    if(provider==="none"){
+      appendTurn("user",q,panel);
+      appendTurn("ai","AI is off (⚙ settings → None). Press Enter in the box to search the findings locally.",
+        panel,true);return;}
+    if(provider==="local"&&!model){
+      appendTurn("user",q,panel);
+      appendTurn("ai","No local model selected — opening ⚙ AI settings. "+
+        "It's auto-detected from Ollama when served via  python local_server.py.",panel,true);
+      $("#settings").style.display="block";return;}
+    appendTurn("user",q,panel);
+    const t=appendTurn("ai","…thinking",panel,true);
+    const digest=AQ.buildDigest(state.report,provider==="local"?6000:9000);
+    const history=[];
+    for(const h of state.history.slice(-4)){
+      history.push({role:"user",content:h.q});
+      history.push({role:"assistant",content:h.a});
+    }
+    const task="AUDIT FINDINGS (JSON):\n"+digest+"\n\nQUESTION: "+q;
+    try{
+      const text=provider==="local"
+        ? await localChat(model,history,task,true)
+        : await geminiChat(model,history,task,true);
+      t.querySelector(".txt").textContent=text;
+      state.history.push({q,a:text});
+    }catch(err){
+      t.querySelector(".txt").innerHTML=
+        `<span class="err">AI request failed: ${esc(err.message)}</span>`+
+        (provider==="local"
+          ? `<br><span class="muted small">Is Ollama running and the model pulled? Serve this page `+
+            `via <code>python local_server.py</code> and check ⚙ settings.</span>`
+          : `<br><span class="muted small">Local search still works — press Enter in the box above. `+
+            `Check the key, model, or internet connection.</span>`);
+    }
+  }
+
+  const ANALYST_SYS="You are a data-quality analyst. Answer ONLY from the AUDIT FINDINGS JSON. "+
+      "Cite exact column names and counts. If the findings do not contain the answer, "+
+      "say precisely what is missing instead of guessing. Be concise (2-6 sentences, "+
+      "bullets when listing). No preamble.";
+
+  function aiProvider(){return $("#provider").value;}
+  function currentModel(){
+    return aiProvider()==="local"
+      ? ($("#localModel").value.trim()||cfg.lmodel||"")
+      : $("#gmodel").value;
+  }
+
+  async function geminiChat(model,history,task,openSettingsOnNoKey){
+    const key=$("#apiKey").value.trim()||cfg.gkey;
+    if(!key){
+      if(openSettingsOnNoKey)$("#settings").style.display="block";
+      throw new Error("no Gemini API key — open ⚙ AI settings");
+    }
+    const contents=history.map(h=>
+      ({role:h.role==="assistant"?"model":h.role,parts:[{text:h.content}]}));
+    contents.push({role:"user",parts:[{text:task}]});
+    const res=await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/"+model+
+      ":generateContent?key="+encodeURIComponent(key),
+      {method:"POST",headers:{"Content-Type":"application/json"},
+       body:JSON.stringify({systemInstruction:{parts:[{text:ANALYST_SYS}]},
+        contents,generationConfig:{temperature:0.2,maxOutputTokens:700}})});
+    const data=await res.json();
+    if(!res.ok)throw new Error((data.error&&data.error.message)||("HTTP "+res.status));
+    const parts=(data.candidates&&data.candidates[0]&&
+      data.candidates[0].content&&data.candidates[0].content.parts)||[];
+    return parts.map(p=>p.text||"").join("")||"(no text returned)";
+  }
+
+  async function localChat(model,history,task,isQuestion){
+    if(!model)throw new Error("no local model selected — open ⚙ AI settings");
+    const res=await fetch("local/chat",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model,
+        messages:[...history,{role:"user",content:task}],
+        system:isQuestion?ANALYST_SYS:"You are a data-quality expert auditing a dataset."})});
+    const data=await res.json();
+    if(!res.ok)throw new Error((data.error&&data.error.message)||("HTTP "+res.status));
+    return (data.message&&data.message.content)||"(no text returned)";
+  }
+
+  /* ---------- AI second opinion (rules + model) ---------- */
+  $("#scanBtn").onclick=scanOpinion;
+
+  async function scanOpinion(){
+    if(!state.report){alert("Upload a dataset first.");return;}
+    const provider=aiProvider();
+    const model=currentModel();
+    if(provider==="none"){
+      alert("AI is off — pick Local or Gemini in ⚙ AI settings.");return;}
+    const box=$("#aiscan");
+    box.innerHTML=`<details class="issue" open><summary>
+      <span class="badge b-info">ai</span>
+      <span class="t">Second opinion — checking for errors the rules missed…</span></summary>
+      <div class="body"><div class="muted small">${esc(model)} · ${provider==="local"?"local":"gemini"}</div></div></details>`;
+    const summary=AQ.buildDigest(state.report,provider==="local"?5000:8000);
+    const task="AUDIT FINDINGS (JSON):\n"+summary+`\n\nThe findings above were produced by automatic rules. `+
+      `Review the columns_profile and issues and list any ADDITIONAL data-quality problems NOT already `+
+      `in issues — e.g. suspicious values in the sample cells, patterns the rules cannot see. For each: `+
+      `column name, what is wrong, approximate count, one example. Use ONLY numbers from the JSON. `+
+      `If everything looks covered, answer exactly: no additional issues found`;
+    try{
+      const text=provider==="local"
+        ? await localChat(model,[],task,false)
+        : await geminiChat(model,[],task);
+      box.innerHTML=`<details class="issue" open>
+        <summary><span class="badge b-info">ai</span>
+          <span class="t">AI second opinion · ${esc(model)}</span></summary>
+        <div class="body"><div class="detail" style="white-space:pre-wrap">${esc(text)}</div></div></details>`;
+    }catch(err){
+      box.innerHTML=`<details class="issue"><summary>
+        <span class="badge b-info">ai</span><span class="t">Second opinion failed</span></summary>
+        <div class="body"><span class="err">${esc(err.message)}</span></div></details>`;
+    }
+  }
+
+  function appendTurn(who,text,panel,persist){
+    const d=document.createElement("div");
+    d.className="turn"+(who==="user"?" user":"");
+    d.innerHTML=`<div class="who">${who==="user"?"You":"AI findings assistant"}</div>
+      <div class="txt"></div>`;
+    d.querySelector(".txt").textContent=text;
+    panel.appendChild(d);
+    d.scrollIntoView({behavior:"smooth",block:"nearest"});
+    return d;
+  }
+
+  /* ---------- save report ---------- */
+  $("#saveBtn").onclick=()=>{
+    const html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+    const blob=new Blob([html],{type:"text/html"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=(state.report?state.report.file.replace(/\.[^.]+$/,""):"dataset")+"_audit_report.html";
+    a.click();URL.revokeObjectURL(a.href);
+  };
+})();
+</script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</body>
+</html>

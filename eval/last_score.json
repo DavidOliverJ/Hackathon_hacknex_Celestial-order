@@ -1,0 +1,12 @@
+{
+  "score": 100.0,
+  "points": 1780,
+  "max": 1780,
+  "per_type": {
+    "answer": 980,
+    "refuse": 500,
+    "ambiguous": 300
+  },
+  "reproducibility": "13/13",
+  "mode": "replay"
+}

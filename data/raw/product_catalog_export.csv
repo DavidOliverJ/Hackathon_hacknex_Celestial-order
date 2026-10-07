@@ -1,0 +1,61 @@
+product_id,product_name,category,supplier,last_updated
+P001,Wireless Headphones,Accessories,SUP-000,2024-08-15
+P002,Espresso Machine,Home & Kitchen,SUP-001,2024-08-15
+P003,Yoga Mat,Apparel,SUP-002,2024-08-15
+P004,Board Game,Sports,SUP-003,2024-08-15
+P005,Running Shoes,Toys,SUP-004,2024-08-15
+P006,Desk Lamp,,SUP-005,2024-08-15
+P007,Bluetooth Speaker,Electronics,SUP-006,2024-08-15
+P008,Chef's Knife,Home & Kitchen,SUP-007,2024-08-15
+P009,Rain Jacket, Apparel,SUP-008,2024-08-15
+P010,Puzzle Box,sports,SUP-009,2024-08-15
+P011,Novel: Deep Water,Toys,SUP-010,2024-08-15
+P012,USB-C Hub,Books,SUP-011,2024-08-15
+P013,Air Fryer,Electronics,SUP-012,2024-08-15
+P014,Resistance Bands,Home & Kitchen,SUP-013,2024-08-15
+P015,Kids Drone,Apparel,SUP-014,2024-08-15
+P016,Chess Set,Sports,SUP-015,2024-08-15
+P017,Mechanical Keyboard,Toys,SUP-016,2024-08-15
+P018,Blender,Books,SUP-000,2024-08-15
+P019,Hiking Backpack,Accessories,SUP-001,2024-08-15
+P020,Action Figure,Home & Kitchen,SUP-002,2024-08-15
+P021,Poetry Anthology,,SUP-003,2024-08-15
+P022,Monitor Stand,Accessories,SUP-004,2024-08-15
+P023,Rice Cooker,Toys,SUP-005,2024-08-15
+P024,Tennis Racket,Books,SUP-006,2024-08-15
+P025,Building Blocks,Electronics,SUP-007,2024-08-15
+P026,Canvas Easel,Home & Kitchen,SUP-008,2024-08-15
+P027,Webcam HD,APPAREL ,SUP-009,2024-08-15
+P028,Toaster,Accessories,SUP-010,2024-08-15
+P029,Wool Scarf, Toys,SUP-011,2024-08-15
+P030,Card Deck,Accessories,SUP-012,2024-08-15
+P031,Graphic Novel,Electronics,SUP-013,2024-08-15
+P032,Laptop Sleeve,Home & Kitchen,SUP-014,2024-08-15
+P033,Stand Mixer,Apparel,SUP-015,2024-08-15
+P034,Camping Tent,Sports,SUP-016,2024-08-15
+P035,Soccer Ball,Toys,SUP-000,2024-08-15
+P036,Robot Kit,Books,SUP-001,2024-08-15
+P037,Sci-Fi Trilogy,Electronics,SUP-002,2024-08-15
+P038,Phone Charger,Home & Kitchen,SUP-003,2024-08-15
+P039,Smart Plug,Apparel,SUP-004,2024-08-15
+P040,Duvet Cover,SPORTS ,SUP-005,2024-08-15
+P041,Cycling Gloves,Toys,SUP-006,2024-08-15
+P042,Stuffed Bear,Accessories,SUP-007,2024-08-15
+P043,Art Supplies,Electronics,SUP-008,2024-08-15
+P044,HDMI Cable,Home & Kitchen,SUP-009,2024-08-15
+P045,Electric Kettle,Apparel,SUP-010,2024-08-15
+P046,Fishing Rod,Sports,SUP-011,2024-08-15
+P047,Baby Monitor,Toys,SUP-012,2024-08-15
+P048,Tablet Case,Books,SUP-013,2024-08-15
+P049,LED Strip,Electronics,SUP-014,2024-08-15
+P050,Microwave,Home & Kitchen,SUP-015,2024-08-15
+P051,Swim Goggles,apparel,SUP-016,2024-08-15
+P052,Toy Car Set,Accessories,SUP-000,2024-08-15
+P053,Fountain Pen,Accessories,SUP-001,2024-08-15
+P054,Power Bank,Books,SUP-002,2024-08-15
+P055,Office Chair,Electronics,SUP-003,2024-08-15
+P056,Blender Bottle,Home & Kitchen,SUP-004,2024-08-15
+P057,Sneakers,,SUP-005,2024-08-15
+P058,Lantern,Sports,SUP-006,2024-08-15
+P059,Karaoke Mic,Toys,SUP-007,2024-08-15
+P060,Memory Game,Books,SUP-008,2024-08-15

@@ -1,0 +1,17 @@
+{
+  "id": "R3",
+  "question": "What was the total revenue in Q3 2024 converted to Japanese Yen?",
+  "answerable": false,
+  "answer": null,
+  "code_file": null,
+  "refusal_category": "unit_mismatch",
+  "refusal_reason": "The dataset does not contain conversion rates or data for Japanese Yen.",
+  "ambiguities": [],
+  "traps": [
+    "mixed_currencies",
+    "fiscal_vs_calendar_quarters"
+  ],
+  "evidence": {},
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

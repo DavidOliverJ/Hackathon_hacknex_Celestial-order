@@ -1,0 +1,37 @@
+{
+  "id": "M1",
+  "question": "What was the average order value in Q3 2024 in USD?",
+  "answerable": true,
+  "answer": 421.4150152713178,
+  "code_file": "answers/M1.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [
+    {
+      "aspect": "fiscal vs calendar quarter",
+      "interpretations": [
+        "Calendar Q3 (July to September 2024)",
+        "Fiscal Q3 (October to December 2024, which falls outside the data span)"
+      ],
+      "assumption": "using calendar Q3 (July-September 2024) as it is the only reading within the dataset span"
+    }
+  ],
+  "traps": [
+    "duplicate_rows",
+    "mixed_currencies",
+    "missing_fx_rates",
+    "mixed_date_formats",
+    "missing_values",
+    "fiscal_vs_calendar_quarters"
+  ],
+  "evidence": {
+    "rows_raw": 5120,
+    "rows_deduped": 5000,
+    "rows_in_scope": 1698,
+    "nulls_skipped": 21,
+    "rows_missing_fx_rate": 0,
+    "rows_used": 1677
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

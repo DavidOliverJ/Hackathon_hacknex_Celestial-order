@@ -1,0 +1,22 @@
+FINANCE MEMO - FY2024 DATA NOTES (treasury team)
+=====================================================
+
+1. Revenue definition
+   The `amount` column in sales_transactions.csv is the line total in the
+   transaction's ORIGINAL currency. Returns/refunds are recorded as negative
+   amounts and ARE included in revenue. Do not filter them out.
+
+2. Currency conversion
+   Amounts arrive in USD, EUR and INR. Always convert using the daily rates
+   in fx_rates.csv (column `rate_to_usd`).
+   NOTE: older reports used a flat 1 EUR = 1.09 USD. That convention was
+   retired in 2024 -- always use the daily table instead.
+
+3. Fiscal year
+   Our fiscal year starts on APRIL 1. So "fiscal Q3" is NOT the same as
+   calendar Q3. When someone says just "Q3", confirm which one they mean.
+
+4. Data caveats
+   - sales_transactions.csv contains duplicate rows from an ETL double-run.
+   - Some rows have missing amounts or missing regions.
+   - Two catalog exports exist and they do not always agree.

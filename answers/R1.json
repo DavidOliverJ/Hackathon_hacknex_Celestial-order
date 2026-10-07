@@ -1,0 +1,16 @@
+{
+  "id": "R1",
+  "question": "What was the average revenue in Q3 2023?",
+  "answerable": false,
+  "answer": null,
+  "code_file": null,
+  "refusal_category": "no_data",
+  "refusal_reason": "The dataset span covers January 2024 to September 2024, so no rows exist for Q3 2023.",
+  "ambiguities": [],
+  "traps": [
+    "fiscal_vs_calendar_quarters"
+  ],
+  "evidence": {},
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (record)"
+}

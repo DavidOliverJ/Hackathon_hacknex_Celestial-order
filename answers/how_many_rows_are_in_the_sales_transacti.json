@@ -1,0 +1,18 @@
+{
+  "id": "how_many_rows_are_in_the_sales_transacti",
+  "question": "How many rows are in the sales transactions table?",
+  "answerable": true,
+  "answer": 5120,
+  "code_file": "answers/how_many_rows_are_in_the_sales_transacti.py",
+  "refusal_category": null,
+  "refusal_reason": "",
+  "ambiguities": [],
+  "traps": [
+    "duplicate_rows"
+  ],
+  "evidence": {
+    "rows_raw": 5120
+  },
+  "confidence": "high",
+  "generated_by": "gemini-3.5-flash-lite (replay)"
+}
